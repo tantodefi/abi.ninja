@@ -52,6 +52,7 @@ const ZKSYNC_ETHERSCAN_API_KEY = process.env.NEXT_PUBLIC_ZKSYNC_ETHERSCAN_API_KE
 const BASE_ETHERSCAN_API_KEY = process.env.NEXT_PUBLIC_BASE_ETHERSCAN_API_KEY || "";
 const SCROLL_ETHERSCAN_API_KEY = process.env.NEXT_PUBLIC_SCROLL_ETHERSCAN_API_KEY || "";
 const BSC_ETHERSCAN_API_KEY = process.env.NEXT_PUBLIC_BSC_ETHERSCAN_API_KEY || "";
+const LUKSO_ETHERSCAN_API_KEY = process.env.NEXT_PUBLIC_LUKSO_ETHERSCAN_API_KEY || "";
 
 export const NETWORKS_EXTRA_DATA: Record<string, ChainAttributes> = {
   [chains.hardhat.id]: {
@@ -143,6 +144,18 @@ export const NETWORKS_EXTRA_DATA: Record<string, ChainAttributes> = {
     etherscanEndpoint: "https://api.bscscan.com",
     etherscanApiKey: BSC_ETHERSCAN_API_KEY,
     icon: "/bsc.svg",
+  },
+  [chains.lukso.id]: {
+    color: "#ffd800",
+    etherscanEndpoint: "https://api.explorer.execution.mainnet.lukso.network",
+    etherscanApiKey: LUKSO_ETHERSCAN_API_KEY,
+    icon: "/lukso.svg",
+  },
+  [chains.luksoTestnet.id]: {
+    color: "#ffd800",
+    etherscanEndpoint: "https://api.explorer.execution.testnet.lukso.network",
+    etherscanApiKey: LUKSO_ETHERSCAN_API_KEY,
+    icon: "/lukso.svg",
   },
 };
 

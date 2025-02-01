@@ -12,6 +12,8 @@ export type ScaffoldConfig = {
 const scaffoldConfig = {
   // After adding a new chain here we should also add it to the networks.ts file
   targetNetworks: [
+    chains.lukso,
+    chains.luksoTestnet,
     chains.mainnet,
     chains.sepolia,
     chains.optimism,
