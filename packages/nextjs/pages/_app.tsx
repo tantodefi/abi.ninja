@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 import type { AppProps } from "next/app";
-import { RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
+import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import PlausibleProvider from "next-plausible";
-import { ThemeProvider, useTheme } from "next-themes";
+import { ThemeProvider } from "next-themes";
 import NextNProgress from "nextjs-progressbar";
 import { Toaster } from "react-hot-toast";
-import { WagmiProvider } from "wagmi";
+import { WagmiConfig } from "wagmi";
 import { getStoredChainsFromLocalStorage } from "~~/components/NetworksDropdown/utils";
-import { BlockieAvatar } from "~~/components/scaffold-eth";
 import { useNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
 import { useGlobalState } from "~~/services/store/store";
+import { wagmiConfig } from "~~/services/web3/wagmiConfig";
+import { Footer } from "~~/components/Footer";
 import "~~/styles/globals.css";
 
 export const queryClient = new QueryClient({
@@ -28,21 +29,13 @@ const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
     addChain: state.addChain,
     setNativeCurrencyPrice: state.setNativeCurrencyPrice,
   }));
-  const { resolvedTheme } = useTheme();
-  const isDarkMode = resolvedTheme === "dark";
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const storedCustomChains = getStoredChainsFromLocalStorage();
-
     storedCustomChains.forEach(chain => {
       addChain(chain);
     });
   }, [addChain]);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (price > 0) {
@@ -51,32 +44,36 @@ const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
   }, [setNativeCurrencyPrice, price]);
 
   return (
-    <RainbowKitProvider
-      avatar={BlockieAvatar}
-      theme={mounted ? (isDarkMode ? darkTheme() : lightTheme()) : lightTheme()}
-    >
-      <div className="flex min-h-screen flex-col">
-        <main className="relative flex flex-1 flex-col">
+    <>
+      <div className="flex flex-col min-h-screen">
+        <main className="relative flex flex-col flex-1">
           <Component {...pageProps} />
         </main>
+        <Footer />
       </div>
       <Toaster />
-    </RainbowKitProvider>
+    </>
   );
 };
 
 const ScaffoldEthAppWithProviders = (props: AppProps) => {
-  const wagmiConfig = useGlobalState(state => state.wagmiConfig);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <PlausibleProvider domain="abi.ninja">
       <ThemeProvider>
-        <WagmiProvider config={wagmiConfig}>
+        <WagmiConfig config={wagmiConfig}>
           <QueryClientProvider client={queryClient}>
             <NextNProgress />
-            <ScaffoldEthApp {...props} />
+            <RainbowKitProvider>
+              {mounted && <ScaffoldEthApp {...props} />}
+            </RainbowKitProvider>
           </QueryClientProvider>
-        </WagmiProvider>
+        </WagmiConfig>
       </ThemeProvider>
     </PlausibleProvider>
   );

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  Options,
   chainToOption,
   filterChains,
   filteredChains,
@@ -12,17 +11,26 @@ import {
   storeChainInLocalStorage,
 } from "./utils";
 import { useTheme } from "next-themes";
-import Select, { MultiValue, SingleValue } from "react-select";
+import Select, { SingleValue, ActionMeta } from "react-select";
 import { Chain } from "viem";
 import { mainnet } from "viem/chains";
 import { AddCustomChainModal, CustomOption, OtherChainsModal } from "~~/components/NetworksDropdown";
 import { useGlobalState } from "~~/services/store/store";
+import { lukso } from "~~/services/web3/wagmiConfig";
 
-export const NetworksDropdown = ({ onChange }: { onChange: (options: any) => any }) => {
+// Define proper types for the options
+interface Option {
+  value: number;
+  label: string;
+  icon?: string;
+  testnet?: boolean;
+}
+
+export const NetworksDropdown = ({ onChange }: { onChange: (option: Option | null) => void }) => {
   const [isMobile, setIsMobile] = useState(false);
   const { resolvedTheme } = useTheme();
   const [groupedOptionsState, setGroupedOptionsState] = useState(initialGroupedOptions);
-  const [selectedOption, setSelectedOption] = useState<SingleValue<Options>>(initialGroupedOptions.mainnet.options[0]);
+  const [selectedOption, setSelectedOption] = useState<Option | null>(null);
 
   const { addCustomChain, removeChain, resetTargetNetwork, setTargetNetwork, chains } = useGlobalState(state => ({
     addCustomChain: state.addChain,
@@ -72,27 +80,31 @@ export const NetworksDropdown = ({ onChange }: { onChange: (options: any) => any
     }
   }, []);
 
-  const handleSelectChange = (newValue: SingleValue<Options> | MultiValue<Options>) => {
-    const selected = newValue as SingleValue<Options>;
-    if (selected?.value === "other-chains") {
-      if (seeOtherChainsModalRef.current) {
-        seeOtherChainsModalRef.current.showModal();
-      }
-    } else if (selected?.value === "custom-chains") {
-      if (customChainModalRef.current) {
-        customChainModalRef.current.showModal();
-      }
+  useEffect(() => {
+    if (!selectedOption) {
+      const defaultOption: Option = {
+        value: Number(lukso.id),
+        label: lukso.name,
+        icon: "/networks/lukso.svg",
+      };
+      setSelectedOption(defaultOption);
+      onChange(defaultOption);
+    }
+  }, [onChange, selectedOption]);
+
+  const handleNetworkSelect = (newValue: SingleValue<Option>, _actionMeta: ActionMeta<Option>) => {
+    if (!newValue) {
+      setSelectedOption(null);
+      onChange(null);
     } else {
-      setSelectedOption(selected);
-      if (selected) {
-        const chain = Object.values(chains).find(chain => chain.id === selected.value);
-        setTargetNetwork(chain as Chain);
-      }
-      onChange(selected);
+      setSelectedOption(newValue);
+      const chain = Object.values(chains).find(chain => chain.id === newValue.value);
+      setTargetNetwork(chain as Chain);
+      onChange(newValue);
     }
   };
 
-  const handleSelectOtherChainInModal = (option: Options) => {
+  const handleSelectOtherChainInModal = (option: Option) => {
     const groupName = option.testnet ? "testnet" : "mainnet";
     if (!groupedOptionsState[groupName].options.some(chain => chain.value === option.value)) {
       const newGroupedOptions = { ...groupedOptionsState };
@@ -101,7 +113,6 @@ export const NetworksDropdown = ({ onChange }: { onChange: (options: any) => any
     }
 
     const chain = Object.values(filteredChains).find(chain => chain.id === option.value);
-
     storeChainInLocalStorage(chain as Chain);
 
     setSelectedOption(option);
@@ -111,8 +122,8 @@ export const NetworksDropdown = ({ onChange }: { onChange: (options: any) => any
     }
   };
 
-  const handleDeleteCustomChain = (option: Options) => {
-    const chainId = +option.value;
+  const handleDeleteCustomChain = (option: Option) => {
+    const chainId = option.value;
 
     removeChain(chainId);
     removeChainFromLocalStorage(chainId);
@@ -127,9 +138,13 @@ export const NetworksDropdown = ({ onChange }: { onChange: (options: any) => any
     setGroupedOptionsState(newGroupedOptions);
 
     if (selectedOption?.value === option.value) {
-      const mainnet = newGroupedOptions.mainnet.options[0];
-      setSelectedOption(mainnet);
-      onChange(mainnet);
+      const mainnetOption: Option = {
+        value: Number(mainnet.id),
+        label: mainnet.name,
+        icon: "/networks/ethereum.svg",
+      };
+      setSelectedOption(mainnetOption);
+      onChange(mainnetOption);
     }
   };
 
@@ -147,12 +162,12 @@ export const NetworksDropdown = ({ onChange }: { onChange: (options: any) => any
 
   return (
     <>
-      <Select
+      <Select<Option>
         value={selectedOption}
-        defaultValue={groupedOptionsState["mainnet"].options[0]}
+        defaultValue={groupedOptionsState["mainnet"].options[0] as Option}
         instanceId="network-select"
         options={Object.values(groupedOptionsState)}
-        onChange={handleSelectChange}
+        onChange={handleNetworkSelect}
         components={{ Option: props => <CustomOption {...props} onDelete={handleDeleteCustomChain} /> }}
         isSearchable={!isMobile}
         className="max-w-xs relative text-sm w-44"

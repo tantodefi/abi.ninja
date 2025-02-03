@@ -147,13 +147,13 @@ export const NETWORKS_EXTRA_DATA: Record<string, ChainAttributes> = {
   },
   [chains.lukso.id]: {
     color: "#ffd800",
-    etherscanEndpoint: "https://api.explorer.execution.mainnet.lukso.network",
+    etherscanEndpoint: "https://explorer.execution.mainnet.lukso.network/api",
     etherscanApiKey: LUKSO_ETHERSCAN_API_KEY,
     icon: "/lukso.svg",
   },
   [chains.luksoTestnet.id]: {
     color: "#ffd800",
-    etherscanEndpoint: "https://api.explorer.execution.testnet.lukso.network",
+    etherscanEndpoint: "https://explorer.execution.testnet.lukso.network/api",
     etherscanApiKey: LUKSO_ETHERSCAN_API_KEY,
     icon: "/lukso.svg",
   },

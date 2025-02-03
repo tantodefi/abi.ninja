@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import type { NextPage } from "next";
 import { Address, isAddress } from "viem";
-import { mainnet } from "viem/chains";
 import { usePublicClient } from "wagmi";
 import { ChevronLeftIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { MetaHeader } from "~~/components/MetaHeader";
@@ -17,6 +16,7 @@ import { useHeimdall } from "~~/hooks/useHeimdall";
 import { useGlobalState } from "~~/services/store/store";
 import { parseAndCorrectJSON } from "~~/utils/abi";
 import { notification } from "~~/utils/scaffold-eth";
+import { lukso } from "~~/services/web3/wagmiConfig";
 
 enum TabName {
   verifiedContract,
@@ -27,7 +27,7 @@ const tabValues = Object.values(TabName) as TabName[];
 
 const Home: NextPage = () => {
   const [activeTab, setActiveTab] = useState(TabName.verifiedContract);
-  const [network, setNetwork] = useState(mainnet.id.toString());
+  const [network, setNetwork] = useState(lukso.id.toString());
   const [verifiedContractAddress, setVerifiedContractAddress] = useState("");
   const [localAbiContractAddress, setLocalAbiContractAddress] = useState("");
   const [localContractAbi, setLocalContractAbi] = useState("");
@@ -37,6 +37,13 @@ const Home: NextPage = () => {
   const publicClient = usePublicClient({
     chainId: parseInt(network),
   });
+
+  useEffect(() => {
+    console.log("Chain configuration updated:", {
+      chainId: parseInt(network),
+      rpcUrl: publicClient?.chain.rpcUrls.default.http[0],
+    });
+  }, [network, publicClient?.chain]);
 
   const { setContractAbi, setAbiContractAddress, setImplementationAddress } = useGlobalState(state => ({
     setContractAbi: state.setContractAbi,
@@ -64,6 +71,7 @@ const Home: NextPage = () => {
       const bytecode = await publicClient?.getBytecode({
         address: verifiedContractAddress as Address,
       });
+      
       const isContract = Boolean(bytecode) && bytecode !== "0x";
 
       if (isContract) {
@@ -73,10 +81,19 @@ const Home: NextPage = () => {
         notification.error("Address is not a contract, are you sure you are on the correct chain?");
       }
     } catch (error) {
-      console.error("Error checking if address is a contract:", error);
-      notification.error("Error checking if address is a contract. Please try again.");
+      console.error("Contract verification error:", {
+        chain: network,
+        address: verifiedContractAddress,
+        error: error instanceof Error ? error.message : String(error)
+      });
+      if (network === "42") {
+        setLocalAbiContractAddress(verifiedContractAddress);
+        setActiveTab(TabName.addressAbi);
+      } else {
+        notification.error("Error checking if address is a contract. Please try again.");
+      }
     }
-  }, [publicClient, verifiedContractAddress, setLocalAbiContractAddress, setActiveTab]);
+  }, [publicClient, verifiedContractAddress, setLocalAbiContractAddress, setActiveTab, network]);
 
   useEffect(() => {
     if (implementationAddress) {
@@ -180,25 +197,25 @@ const Home: NextPage = () => {
                       <div className="mb-2 text-center text-base">Quick access</div>
                       <div className="flex justify-center w-full rounded-xl">
                         <Link
-                          href="/0x6B175474E89094C44Da98b954EedeAC495271d0F/1"
+                          href="/0x3983151E0442906000DAb83c8b1cF3f2D2535F82/"
                           passHref
                           className="link w-1/3 text-center text-base-content no-underline"
                         >
-                          DAI
+                          BurntPix
                         </Link>
                         <Link
-                          href="/0xde30da39c46104798bb5aa3fe8b9e0e1f348163f/1"
+                          href="/0xde30da39c46104798bb5aa3fe8b9e0e1f348163f/1" // get gitcoin address on lukso
                           passHref
                           className="link w-1/3 text-center text-base-content no-underline"
                         >
                           Gitcoin
                         </Link>
                         <Link
-                          href="/0x00000000006c3852cbef3e08e8df289169ede581/1"
+                          href="/0x6807c995602eaf523a95a6b97acc4da0d3894655/42"
                           passHref
                           className="link w-1/3 text-center text-base-content no-underline"
                         >
-                          Opensea
+                          UniversalPage
                         </Link>
                       </div>
                     </div>
