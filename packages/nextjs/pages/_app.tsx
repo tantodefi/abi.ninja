@@ -57,24 +57,36 @@ const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
 };
 
 const ScaffoldEthAppWithProviders = (props: AppProps) => {
+  // Only import UPProviderComponent on client side
+  const [UPProviderComponent, setUPProviderComponent] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // Dynamically import the UPProviderComponent
+    import("~~/components/providers/UPProvider").then(module => {
+      setUPProviderComponent(() => module.UPProviderComponent);
+    });
     setMounted(true);
   }, []);
 
+  if (!mounted) return null;
+
+  const Wrapper = UPProviderComponent || (({ children }: { children: React.ReactNode }) => <>{children}</>);
+
   return (
     <PlausibleProvider domain="abi.ninja">
-      <ThemeProvider>
-        <WagmiConfig config={wagmiConfig}>
-          <QueryClientProvider client={queryClient}>
+      <WagmiConfig config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
             <NextNProgress />
             <RainbowKitProvider>
-              {mounted && <ScaffoldEthApp {...props} />}
+              <Wrapper>
+                <ScaffoldEthApp {...props} />
+              </Wrapper>
             </RainbowKitProvider>
-          </QueryClientProvider>
-        </WagmiConfig>
-      </ThemeProvider>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </WagmiConfig>
     </PlausibleProvider>
   );
 };

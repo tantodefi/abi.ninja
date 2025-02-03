@@ -1,46 +1,36 @@
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
 import {
   coinbaseWallet,
-  ledgerWallet,
+  injectedWallet,
   metaMaskWallet,
-  rainbowWallet,
-  safeWallet,
   walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
-import { rainbowkitBurnerWallet } from "burner-connector";
-import * as chains from "viem/chains";
-import scaffoldConfig from "~~/scaffold.config";
-import { getTargetNetworks } from "~~/utils/scaffold-eth";
+import * as viemChains from "viem/chains";
+import scaffoldConfig from "../../scaffold.config";
+import { getTargetNetworks } from "../../utils/scaffold-eth";
 
-const { onlyLocalBurnerWallet } = scaffoldConfig;
+const projectId = scaffoldConfig.walletConnectProjectId || "YOUR_PROJECT_ID";
+const appName = "Scaffold-ETH 2";
+const targetChains = getTargetNetworks();
 
-const targetNetworks = getTargetNetworks();
+const needsInjectedWalletFallback =
+  typeof window !== "undefined" && window.ethereum && !window.ethereum.isMetaMask && !window.ethereum.isCoinbaseWallet;
 
-const wallets = [
-  metaMaskWallet,
-  walletConnectWallet,
-  ledgerWallet,
-  coinbaseWallet,
-  rainbowWallet,
-  safeWallet,
-  ...(!targetNetworks.some(network => network.id !== (chains.hardhat as chains.Chain).id) || !onlyLocalBurnerWallet
-    ? [rainbowkitBurnerWallet]
-    : []),
-];
+const connectorConfig = {
+  appName,
+  projectId,
+  chains: targetChains,
+  options: {
+    shimDisconnect: true,
+  },
+};
 
 /**
  * wagmi connectors for the wagmi context
  */
-export const wagmiConnectors = connectorsForWallets(
-  [
-    {
-      groupName: "Supported Wallets",
-      wallets,
-    },
-  ],
-
-  {
-    appName: "scaffold-eth-2",
-    projectId: scaffoldConfig.walletConnectProjectId,
-  },
-);
+export const connectors = [
+  metaMaskWallet(connectorConfig),
+  walletConnectWallet(connectorConfig),
+  coinbaseWallet(connectorConfig),
+  ...(needsInjectedWalletFallback ? [injectedWallet(connectorConfig)] : []),
+];

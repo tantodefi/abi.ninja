@@ -9,7 +9,7 @@ import {
 import { Options } from "./utils";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useGlobalState } from "~~/services/store/store";
-import { notification } from "~~/utils/scaffold-eth";
+import { notification } from "~~/utils/notification";
 
 type AddCustomChainModalProps = {
   groupedOptionsState: GroupedOptions;

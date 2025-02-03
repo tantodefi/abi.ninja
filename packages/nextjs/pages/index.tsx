@@ -197,7 +197,7 @@ const Home: NextPage = () => {
                       <div className="mb-2 text-center text-base">Quick access</div>
                       <div className="flex justify-center w-full rounded-xl">
                         <Link
-                          href="/0x3983151E0442906000DAb83c8b1cF3f2D2535F82/"
+                          href="/0x3983151E0442906000DAb83c8b1cF3f2D2535F82/42"
                           passHref
                           className="link w-1/3 text-center text-base-content no-underline"
                         >

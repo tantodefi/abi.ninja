@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, SetStateAction } from "react";
 import {
   chainToOption,
   filterChains,
@@ -9,9 +9,10 @@ import {
   networkIds,
   removeChainFromLocalStorage,
   storeChainInLocalStorage,
+  Options,
 } from "./utils";
 import { useTheme } from "next-themes";
-import Select, { SingleValue, ActionMeta } from "react-select";
+import Select, { GroupBase, SingleValue } from "react-select";
 import { Chain } from "viem";
 import { mainnet } from "viem/chains";
 import { AddCustomChainModal, CustomOption, OtherChainsModal } from "~~/components/NetworksDropdown";
@@ -25,6 +26,37 @@ interface Option {
   icon?: string;
   testnet?: boolean;
 }
+
+interface GroupedOption extends GroupBase<Option> {
+  label: string;
+  options: Option[];
+}
+
+// Type guard to check if an option has a numeric value
+const isNumericOption = (option: Option | { value: string | number }): option is Option => {
+  return typeof option.value === "number";
+};
+
+// Type guard to check if an option has a numeric value and string icon
+const isValidOption = (value: any): value is Option => {
+  return (
+    typeof value.value === "number" &&
+    typeof value.label === "string" &&
+    (value.icon === undefined || typeof value.icon === "string") &&
+    (value.testnet === undefined || typeof value.testnet === "boolean")
+  );
+};
+
+const convertToOption = (value: any): Option | null => {
+  if (!value) return null;
+  
+  return {
+    value: Number(value.value),
+    label: String(value.label),
+    icon: typeof value.icon === "string" ? value.icon : undefined,
+    testnet: Boolean(value.testnet),
+  };
+};
 
 export const NetworksDropdown = ({ onChange }: { onChange: (option: Option | null) => void }) => {
   const [isMobile, setIsMobile] = useState(false);
@@ -92,7 +124,7 @@ export const NetworksDropdown = ({ onChange }: { onChange: (option: Option | nul
     }
   }, [onChange, selectedOption]);
 
-  const handleNetworkSelect = (newValue: SingleValue<Option>, _actionMeta: ActionMeta<Option>) => {
+  const handleNetworkSelect = (newValue: SingleValue<Option>) => {
     if (!newValue) {
       setSelectedOption(null);
       onChange(null);
@@ -162,13 +194,13 @@ export const NetworksDropdown = ({ onChange }: { onChange: (option: Option | nul
 
   return (
     <>
-      <Select<Option>
+      <Select<Option, false, GroupedOption>
         value={selectedOption}
         defaultValue={groupedOptionsState["mainnet"].options[0] as Option}
         instanceId="network-select"
-        options={Object.values(groupedOptionsState)}
+        options={Object.values(groupedOptionsState) as GroupedOption[]}
         onChange={handleNetworkSelect}
-        components={{ Option: props => <CustomOption {...props} onDelete={handleDeleteCustomChain} /> }}
+        components={{ Option: (props: any) => <CustomOption {...props} onDelete={handleDeleteCustomChain} /> }}
         isSearchable={!isMobile}
         className="max-w-xs relative text-sm w-44"
         theme={theme => ({
@@ -195,14 +227,45 @@ export const NetworksDropdown = ({ onChange }: { onChange: (option: Option | nul
       <OtherChainsModal
         ref={seeOtherChainsModalRef}
         modalChains={modalChains}
-        onSelect={handleSelectOtherChainInModal}
+        onSelect={option => {
+          if (isNumericOption(option)) {
+            handleSelectOtherChainInModal(option);
+          }
+        }}
       />
       <AddCustomChainModal
         ref={customChainModalRef}
         groupedOptionsState={groupedOptionsState}
         setGroupedOptionsState={setGroupedOptionsState}
-        setSelectedOption={setSelectedOption}
-        onChange={onChange}
+        setSelectedOption={(value: SetStateAction<Options | null>) => {
+          if (typeof value === "function") {
+            // Handle updater function case
+            const currentValue = null; // or get current value if needed
+            const newValue = value(currentValue);
+            const convertedValue = convertToOption(newValue);
+            if (convertedValue && isValidOption(convertedValue)) {
+              setSelectedOption(convertedValue);
+            } else {
+              setSelectedOption(null);
+            }
+          } else {
+            // Handle direct value case
+            const convertedValue = convertToOption(value);
+            if (convertedValue && isValidOption(convertedValue)) {
+              setSelectedOption(convertedValue);
+            } else {
+              setSelectedOption(null);
+            }
+          }
+        }}
+        onChange={(option: Options | null) => {
+          const convertedValue = convertToOption(option);
+          if (convertedValue && isValidOption(convertedValue)) {
+            onChange(convertedValue);
+          } else {
+            onChange(null);
+          }
+        }}
       />
     </>
   );
