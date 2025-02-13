@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import type { NextPage } from "next";
 import { Address, isAddress } from "viem";
@@ -181,27 +180,33 @@ const Home: NextPage = () => {
                     <div className="flex flex-col text-sm w-4/5 mb-10 mt-14">
                       <div className="mb-2 text-center text-base">Quick access</div>
                       <div className="flex justify-center w-full rounded-xl">
-                        <Link
-                          href="/0x6B175474E89094C44Da98b954EedeAC495271d0F/1"
-                          passHref
-                          className="link w-1/3 text-center text-base-content no-underline"
+                        <button
+                          className="w-1/3 text-center text-base-content hover:text-primary"
+                          onClick={() => {
+                            setVerifiedContractAddress("0x3983151e0442906000dab83c8b1cf3f2d2535f82");
+                            setNetwork("42");
+                          }}
                         >
-                          DAI
-                        </Link>
-                        <Link
-                          href="/0xde30da39c46104798bb5aa3fe8b9e0e1f348163f/1"
-                          passHref
-                          className="link w-1/3 text-center text-base-content no-underline"
+                          BurntPix
+                        </button>
+                        <button
+                          className="w-1/3 text-center text-base-content hover:text-primary"
+                          onClick={() => {
+                            setVerifiedContractAddress("0xde30da39c46104798bb5aa3fe8b9e0e1f348163f");
+                            setNetwork("1");
+                          }}
                         >
                           Gitcoin
-                        </Link>
-                        <Link
-                          href="/0x00000000006c3852cbef3e08e8df289169ede581/1"
-                          passHref
-                          className="link w-1/3 text-center text-base-content no-underline"
+                        </button>
+                        <button
+                          className="w-1/3 text-center text-base-content hover:text-primary"
+                          onClick={() => {
+                            setVerifiedContractAddress("0x66b738baea30243bfe4c168a11e79dd1f930e59c");
+                            setNetwork("42");
+                          }}
                         >
-                          Opensea
-                        </Link>
+                          BurntPunX
+                        </button>
                       </div>
                     </div>
                   </div>

@@ -13,6 +13,8 @@ import { BlockieAvatar } from "~~/components/scaffold-eth";
 import { useNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
 import { useGlobalState } from "~~/services/store/store";
 import "~~/styles/globals.css";
+import { LuksoProvider } from "~~/components/NetworksDropdown/LuksoProvider";
+import { Chain } from "viem";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,6 +23,56 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+// Add LUKSO network configuration
+const luksoMainnet: Chain = {
+  id: 4201,
+  name: "LUKSO Mainnet",
+  nativeCurrency: {
+    decimals: 18,
+    name: "LYX",
+    symbol: "LYX",
+  },
+  rpcUrls: {
+    default: {
+      http: ["https://rpc.lukso.gateway.fm"],
+    },
+    public: {
+      http: ["https://rpc.lukso.gateway.fm"],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: "LUKSO Mainnet Explorer",
+      url: "https://explorer.lukso.network",
+    },
+  },
+};
+
+// Add LUKSO testnet if needed
+const luksoTestnet: Chain = {
+  id: 4201,
+  name: "LUKSO Testnet",
+  nativeCurrency: {
+    decimals: 18,
+    name: "LYXt",
+    symbol: "LYXt",
+  },
+  rpcUrls: {
+    default: {
+      http: ["https://rpc.testnet.lukso.gateway.fm"],
+    },
+    public: {
+      http: ["https://rpc.testnet.lukso.gateway.fm"],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: "LUKSO Testnet Explorer",
+      url: "https://explorer.testnet.lukso.network",
+    },
+  },
+};
 
 const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
   const price = useNativeCurrencyPrice();
@@ -34,8 +86,14 @@ const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
 
   useEffect(() => {
     const storedCustomChains = getStoredChainsFromLocalStorage();
+    const availableChains = [luksoMainnet, luksoTestnet];
 
     storedCustomChains.forEach(chain => {
+      addChain(chain);
+    });
+
+    // Add the available chains
+    availableChains.forEach(chain => {
       addChain(chain);
     });
   }, [addChain]);
@@ -74,7 +132,9 @@ const ScaffoldEthAppWithProviders = (props: AppProps) => {
         <WagmiProvider config={wagmiConfig}>
           <QueryClientProvider client={queryClient}>
             <NextNProgress />
-            <ScaffoldEthApp {...props} />
+            <LuksoProvider>
+              <ScaffoldEthApp {...props} />
+            </LuksoProvider>
           </QueryClientProvider>
         </WagmiProvider>
       </ThemeProvider>

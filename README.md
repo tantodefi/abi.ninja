@@ -1,4 +1,17 @@
-# ABI Ninja
+# Grid.abi.ninja
+
+https://gridabininja.vercel.app/
+
+Developers can now interact with any non-verified contracts on the lukso networks right inside their grid! 
+Great for debugging and quickly testing out ideas!
+
+- added [@lukso/up-provider](https://github.com/lukso-network/tools-up-provider) for grid support
+- integrated with existing wagmi config
+- added lukso mainnet and testnet chains as default
+- added [burntpix](https://burntpix.com) and [burntpunx](https://hoodiecartel.com) contracts for quick select
+- de-compiling unverified contracts feature working (beta)
+
+## ABI Ninja
 
 Interact with smart contracts on any EVM chain. ABI Ninja provides an intuitive frontend for contracts from most popular EVM networks, currently supporting:
 

@@ -12,19 +12,8 @@ export type ScaffoldConfig = {
 const scaffoldConfig = {
   // After adding a new chain here we should also add it to the networks.ts file
   targetNetworks: [
-    chains.mainnet,
-    chains.sepolia,
-    chains.optimism,
-    chains.base,
-    chains.baseSepolia,
-    chains.polygon,
-    chains.polygonMumbai,
-    chains.arbitrum,
-    chains.gnosis,
-    chains.zkSync,
-    chains.scroll,
-    chains.scrollSepolia,
-    chains.hardhat,
+    chains.lukso,
+    chains.luksoTestnet,
   ],
 
   // The interval at which your front-end polls the RPC servers for new data

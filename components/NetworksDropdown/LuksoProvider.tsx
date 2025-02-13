@@ -1,0 +1,1 @@
+const { _chainId, _accounts, _walletConnected } = useLuksoConnection(); 

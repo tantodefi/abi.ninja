@@ -38,7 +38,6 @@ export const wagmiConnectors = connectorsForWallets(
       wallets,
     },
   ],
-
   {
     appName: "scaffold-eth-2",
     projectId: scaffoldConfig.walletConnectProjectId,
