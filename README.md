@@ -1,6 +1,6 @@
 # Grid.abi.ninja
 
-<iframe width="900" height="688" src="https://www.youtube.com/embed/ENaW59J8c0c" title="abi.ninja as a LUKSO grid mini app" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[![abi.ninja as a LUKSO grid mini app](https://img.youtube.com/vi/ENaW59J8c0c/maxresdefault.jpg)](https://www.youtube.com/watch?v=ENaW59J8c0c)
 
 https://gridabininja.vercel.app/
 
