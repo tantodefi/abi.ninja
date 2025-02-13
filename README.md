@@ -1,5 +1,7 @@
 # Grid.abi.ninja
 
+<iframe width="900" height="688" src="https://www.youtube.com/embed/ENaW59J8c0c" title="abi.ninja as a LUKSO grid mini app" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 https://gridabininja.vercel.app/
 
 Developers can now interact with any non-verified contracts on the lukso networks right inside their grid! 
